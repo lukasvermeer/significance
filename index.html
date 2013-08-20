@@ -6,6 +6,11 @@
 		  font: 10px sans-serif;
 		}
 
+		.intro {
+		  font: 13px sans-serif;
+		  width: 600px;
+		}
+		
 		.x.axis line {
 			shape-rendering: auto;
 		}
@@ -46,25 +51,31 @@
 // Just set up some basics
 //
 
-// Chisquare distribution levels
-// var GTEST_CUTOFF_90 = chisqrdistr(1, .1); // 2.7105; // This means significance at .10 
-// var GTEST_CUTOFF_95 = chisqrdistr(1, .05); // 3.8502; // This means significance at .05
-var P_VALUE = prompt("Please enter desired p-value.",0.1);
-var GTEST_CUTOFF = chisqrdistr(1, P_VALUE);
+function init() {
+	// Chisquare distribution levels
+	// var GTEST_CUTOFF_90 = chisqrdistr(1, .1); // 2.7105; // This means significance at .10 
+	// var GTEST_CUTOFF_95 = chisqrdistr(1, .05); // 3.8502; // This means significance at .05
+	P_VALUE = $("#pval").val();
+	GTEST_CUTOFF = chisqrdistr(1, P_VALUE);
 
-// How many variants and participants to include
-var VARIANTS        = 2;
-var SAMPLE_SIZE     = prompt("Please enter desired sample size per variant.",100000); // 100000;
-var PARTICIPANTS    = SAMPLE_SIZE * VARIANTS;
+	// How many variants and participants to include
+	VARIANTS        = 2;
+	SAMPLE_SIZE     = $("#sample").val();
+	PARTICIPANTS    = SAMPLE_SIZE * VARIANTS;
 
-// Conversion rate of mock experiments
-var CONVERSION_RATE = prompt("Please enter desired average conversion percentage.",3);
+	// Conversion rate of mock experiments
+	CONVERSION_RATE = $("#conv").val();
 
-// How many participants to do before starting checking
-var CHECK_CUTOFF    = prompt("Please enter minimum number of visitors to require before testing for significance.",10000);;
+	// How many participants to do before starting checking
+	CHECK_CUTOFF    = $("#cutoff").val();
 
-// Number of mock experiments to run
-var EXPERIMENTS     = prompt("Please enter desired number of experiments to perform.",100);
+	// Number of mock experiments to run
+	EXPERIMENTS     = $("#exp").val();
+	
+	$("#samplesize").text(SAMPLE_SIZE/1000+"k");
+	$("#p").text(P_VALUE);
+	recursive_experiment_loop();
+}
 
 //
 // Counts
@@ -193,9 +204,9 @@ function recursive_experiment_loop() {
 }
 
 $(document).ready(function() {
-	$("#samplesize").text(SAMPLE_SIZE/1000+"k");
-	$("#p").text(P_VALUE);
-	recursive_experiment_loop();
+	//$("#samplesize").text(SAMPLE_SIZE/1000+"k");
+	//$("#p").text(P_VALUE);
+	//recursive_experiment_loop();
 });
 
 var n = 40, random = d3.random.normal(0, .2);
@@ -271,6 +282,19 @@ chart([0, n - 1], "linear", function tick(path, line, data, x) {
 }); */
 
 </script>
+		<div class="intro">
+			<h1>Repeated Significance Testing Simulation</h1>
+			<p>This simulation was designed to illustrate the effects of repeated significance testing as described in Mats Einarsen's post "<a href="http://www.einarsen.no/is-your-ab-testing-effort-just-chasing-statistical-ghosts/">is your A/B testing effort just chasing statistical ghosts</a>".</p>
+			<form id="input">
+				p-value: <input type="text" id="pval" value="0.1" style="width:30;" /> 
+				sample size: <input type="text" id="sample" value="100000" style="width:60;" /> 
+				conversion: <input type="text" id="conv" value="3" style="width:20;" />%
+				cutoff point: <input type="text" id="cutoff" value="10000" style="width:60;" />
+				experiments: <input type="text" id="exp" value="100" style="width:40;" />
+				
+				<p><a href="#" onClick="$('#input input').prop('disabled', true); init();">start simulation</a></p>
+			</form>
+		</div>
 		<div class="kpiblock">
 			<span class="legend">p-value</span><br />
 			<span class="bignumber" id="p">0.1</span>
