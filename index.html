@@ -125,6 +125,21 @@ function calculate_g_test (data) {
   return g_test;
 }
 
+// This takes counts for visitors and wins for two variants, and calculates
+// the raw g-test value.  It is faster than the generic code above.
+function calculate_g_test_quick (b_v,b_c,v_v,v_c,data) {
+  var row_totals = [b_v+b_c,v_v+v_c];
+  var column_totals = [b_v+v_v,b_c+v_c];
+  var total = b_v+b_c+v_v+v_c;;
+
+  g = 2 * b_v * Math.log( b_v / (row_totals[0] * column_totals[0] / total) )
+    + 2 * b_c * Math.log( b_c / (row_totals[0] * column_totals[1] / total) )
+    + 2 * v_v * Math.log( v_v / (row_totals[1] * column_totals[0] / total) )
+    + 2 * v_c * Math.log( v_c / (row_totals[1] * column_totals[1] / total) );
+
+  return g;
+}
+
 // One pretend experiment with $participants and the same $CONVERSION_RATE in
 // each variant, randomly assigning each participant to a variant at time seen
 function run_single_experiment (experiment) {
@@ -146,6 +161,7 @@ function run_single_experiment (experiment) {
 
     if (participant < CHECK_CUTOFF) continue;
 
+    /*
     var data_all = [];
     for (var i = 0; i < VARIANTS; i++) {
       var this_version = variant[i];
@@ -153,6 +169,12 @@ function run_single_experiment (experiment) {
     }
 
     var g = calculate_g_test(data_all);
+    */
+
+    var g = calculate_g_test_quick(variant[0][1],
+                                   variant[0][2],
+                                   variant[1][1],
+                                   variant[1][2]);
 
     if (g >= GTEST_CUTOFF) {
       if (variant[1][1] / variant[1][2] > variant[0][1] / variant[0][2]) { finding_positive++; }
@@ -161,25 +183,19 @@ function run_single_experiment (experiment) {
     }
   }
 
-  var min = variant[0];
-  var max = variant[0];
+  /*
   var data_all = [];
   for (var i = 0; i < VARIANTS; i++) {
     var this_version = variant[i];
     data_all.push( [this_version[1], this_version[2]] );
-
-    if ( this_version[1] / this_version[2] > max[1] / max[2]) {
-      max = this_version;
-    }
-    else if (this_version[1] / this_version[2] < min[1] / min[2]) {
-      min = this_version;
-    }
   }
-
   var g     = calculate_g_test(data_all);
+  */
 
-  var p_all = chisqrprob(VARIANTS - 1, g);
-  var certainty_all = round_to_precision( 100 * (1-p_all), 2);
+  var g = calculate_g_test_quick(variant[0][1],
+                                 variant[0][2],
+                                 variant[1][1],
+                                 variant[1][2]);
 
   if (g >= GTEST_CUTOFF) only_final90++;
 
@@ -195,7 +211,7 @@ function run_single_experiment (experiment) {
 
 function recursive_experiment_loop() {
   run_single_experiment(++experiments);
-  if (experiments < EXPERIMENTS) timeoutID = window.setTimeout(recursive_experiment_loop, 10);
+  if (experiments < EXPERIMENTS) timeoutID = window.setTimeout(recursive_experiment_loop, 1);
 }
 
     </script>
