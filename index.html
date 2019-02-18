@@ -145,59 +145,44 @@ function calculate_g_test_quick (b_v,b_c,v_v,v_c) {
 // One pretend experiment with $participants and the same $CONVERSION_RATE in
 // each variant, randomly assigning each participant to a variant at time seen
 function run_single_experiment (experiment) {
-  var variant = new Array();
-  for (var i = 0; i < VARIANTS; ++i) { variant.push([i,0,0]); };
+  for (var i = 0; i < VARIANTS; ++i) {
+    variant_0_1 = 0;
+    variant_0_2 = 0;
+    variant_1_1 = 0;
+    variant_1_2 = 0;
+  };
 
   var finding90 = 0;
   var finding_negative = 0;
   var finding_positive = 0;
 
   for (var participant = 0; participant <= PARTICIPANTS; ++participant) {
-    var v = Math.floor(Math.random() * VARIANTS);
+    var v = (Math.random() * 2) | 0;
 
     if (Math.random() * 100 <= CONVERSION_RATE) {
-      variant[v][1]++; // hits
+      v ? ++variant_1_1 : ++variant_0_1;
     } else {
-      variant[v][2]++; // fails
+      v ? ++variant_1_2 : ++variant_0_2;
     }
 
     if (participant < CHECK_CUTOFF) continue;
 
-    /*
-    var data_all = [];
-    for (var i = 0; i < VARIANTS; i++) {
-      var this_version = variant[i];
-      data_all.push( [this_version[1], this_version[2]] );
-    }
-
-    var g = calculate_g_test(data_all);
-    */
-
-    var g = calculate_g_test_quick(variant[0][1],
-                                   variant[0][2],
-                                   variant[1][1],
-                                   variant[1][2]);
+    var g = calculate_g_test_quick(variant_0_1,
+                                   variant_0_2,
+                                   variant_1_1,
+                                   variant_1_2);
 
     if (g >= GTEST_CUTOFF) {
-      if (variant[1][1] / variant[1][2] > variant[0][1] / variant[0][2]) { finding_positive++; }
-      if (variant[1][1] / variant[1][2] < variant[0][1] / variant[0][2]) { finding_negative++; }
+      if (variant_1_1 / variant_1_2 > variant_0_1 / variant_0_2) { finding_positive++; }
+      if (variant_1_1 / variant_1_2 < variant_0_1 / variant_0_2) { finding_negative++; }
       finding90++;
     }
   }
 
-  /*
-  var data_all = [];
-  for (var i = 0; i < VARIANTS; i++) {
-    var this_version = variant[i];
-    data_all.push( [this_version[1], this_version[2]] );
-  }
-  var g     = calculate_g_test(data_all);
-  */
-
-  var g = calculate_g_test_quick(variant[0][1],
-                                 variant[0][2],
-                                 variant[1][1],
-                                 variant[1][2]);
+  var g = calculate_g_test_quick(variant_0_1,
+                                 variant_0_2,
+                                 variant_1_1,
+                                 variant_1_2);
 
   if (g >= GTEST_CUTOFF) only_final90++;
 
