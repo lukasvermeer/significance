@@ -127,15 +127,17 @@ function calculate_g_test (data) {
 
 // This takes counts for visitors and wins for two variants, and calculates
 // the raw g-test value.  It is faster than the generic code above.
-function calculate_g_test_quick (b_v,b_c,v_v,v_c,data) {
-  var row_totals = [b_v+b_c,v_v+v_c];
-  var column_totals = [b_v+v_v,b_c+v_c];
+function calculate_g_test_quick (b_v,b_c,v_v,v_c) {
+  var row_totals_0 = b_v+b_c;
+  var row_totals_1 = v_v+v_c;
+  var column_totals_0 = b_v+v_v;
+  var column_totals_1 = b_c+v_c;
   var total = b_v+b_c+v_v+v_c;;
 
-  g = 2 * b_v * Math.log( b_v / (row_totals[0] * column_totals[0] / total) )
-    + 2 * b_c * Math.log( b_c / (row_totals[0] * column_totals[1] / total) )
-    + 2 * v_v * Math.log( v_v / (row_totals[1] * column_totals[0] / total) )
-    + 2 * v_c * Math.log( v_c / (row_totals[1] * column_totals[1] / total) );
+  g = 2 * b_v * Math.log( b_v / (row_totals_0 * column_totals_0 / total) )
+    + 2 * b_c * Math.log( b_c / (row_totals_0 * column_totals_1 / total) )
+    + 2 * v_v * Math.log( v_v / (row_totals_1 * column_totals_0 / total) )
+    + 2 * v_c * Math.log( v_c / (row_totals_1 * column_totals_1 / total) );
 
   return g;
 }
